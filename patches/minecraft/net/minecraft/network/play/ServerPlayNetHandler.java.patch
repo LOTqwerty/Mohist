@@ -890,9 +890,6 @@
 +            // CraftBukkit start - Check if we can actually do something over this large a distance
 +            Location eyeLoc = this.getPlayer().getEyeLocation();
 +            double reachDistance = NumberConversions.square(eyeLoc.getX() - blockpos.func_177958_n()) + NumberConversions.square(eyeLoc.getY() - blockpos.func_177956_o()) + NumberConversions.square(eyeLoc.getZ() - blockpos.func_177952_p());
-+            if (reachDistance > (this.getPlayer().getGameMode() == org.bukkit.GameMode.CREATIVE ? CREATIVE_PLACE_DISTANCE_SQUARED : SURVIVAL_PLACE_DISTANCE_SQUARED)) {
-+               return;
-+            }
 +            this.field_147369_b.func_184597_cx(); // SPIGOT-4706
 +            // CraftBukkit end
              ActionResultType actionresulttype = this.field_147369_b.field_71134_c.func_219441_a(this.field_147369_b, serverworld, itemstack, hand, blockraytraceresult);
