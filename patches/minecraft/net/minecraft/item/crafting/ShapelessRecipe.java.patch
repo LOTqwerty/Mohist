@@ -1,6 +1,6 @@
 --- a/net/minecraft/item/crafting/ShapelessRecipe.java
 +++ b/net/minecraft/item/crafting/ShapelessRecipe.java
-@@ -4,6 +4,7 @@
+@@ -4,6 +_,7 @@
  import com.google.gson.JsonObject;
  import com.google.gson.JsonParseException;
  import it.unimi.dsi.fastutil.ints.IntList;
@@ -8,7 +8,7 @@
  import net.minecraft.inventory.CraftingInventory;
  import net.minecraft.item.ItemStack;
  import net.minecraft.network.PacketBuffer;
-@@ -11,20 +12,38 @@
+@@ -11,19 +_,37 @@
  import net.minecraft.util.NonNullList;
  import net.minecraft.util.ResourceLocation;
  import net.minecraft.world.World;
@@ -28,9 +28,10 @@
        this.field_194138_c = p_i48161_2_;
        this.field_77580_a = p_i48161_3_;
        this.field_77579_b = p_i48161_4_;
+-   }
 +      this.isSimple = p_i48161_4_.stream().allMatch(Ingredient::isSimple);
-    }
- 
++   }
++
 +   // CraftBukkit start
 +   @Override
 +   public org.bukkit.inventory.ShapelessRecipe toBukkitRecipe() {
@@ -43,11 +44,10 @@
 +      return recipe;
 +   }
 +   // CraftBukkit end
-+
+ 
     public ResourceLocation func_199560_c() {
        return this.field_199562_a;
-    }
-@@ -33,7 +52,7 @@
+@@ -33,7 +_,7 @@
        return IRecipeSerializer.field_222158_b;
     }
  
@@ -56,7 +56,7 @@
        return this.field_194138_c;
     }
  
-@@ -47,17 +66,56 @@
+@@ -47,17 +_,56 @@
  
     public boolean func_77569_a(CraftingInventory p_77569_1_, World p_77569_2_) {
        RecipeItemHelper recipeitemhelper = new RecipeItemHelper();
@@ -73,6 +73,10 @@
           if (!itemstack.func_190926_b()) {
 -            ++i;
 -            recipeitemhelper.func_221264_a(itemstack, 1);
+-         }
+-      }
+-
+-      return i == this.field_77579_b.size() && recipeitemhelper.func_194116_a(this, (IntList)null);
 +            if (isSimple) {
 +               // Paper start
 +               itemstack = itemstack.func_77946_l();
@@ -87,10 +91,9 @@
 +            } else {
 +               inputs.add(itemstack);
 +            }
-          }
-       }
- 
--      return i == this.field_77579_b.size() && recipeitemhelper.func_194116_a(this, (IntList)null);
++         }
++      }
++
 +      //return i == this.recipeItems.size() && (isSimple ? recipeitemhelper.canCraft(this, (IntList)null) : net.minecraftforge.common.util.RecipeMatcher.findMatches(inputs,  this.recipeItems) != null);
 +      // Paper start
 +      if (isSimple && (matchedProvided.isEmpty() || matchedIngredients.isEmpty())) {
@@ -116,7 +119,7 @@
     }
  
     public ItemStack func_77572_b(CraftingInventory p_77572_1_) {
-@@ -68,14 +126,15 @@
+@@ -68,14 +_,15 @@
        return p_194133_1_ * p_194133_2_ >= this.field_77579_b.size();
     }
  

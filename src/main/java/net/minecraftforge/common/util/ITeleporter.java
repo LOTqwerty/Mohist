@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2020.
+ * Copyright (c) 2016-2021.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -81,7 +81,7 @@ public interface ITeleporter
     @Nullable
     default PortalInfo getPortalInfo(Entity entity, ServerWorld destWorld, Function<ServerWorld, PortalInfo> defaultPortalInfo)
     {
-        PortalInfo portalInfo = new PortalInfo(entity.getPositionVec(), Vector3d.ZERO, entity.rotationYaw, entity.rotationPitch);
+        PortalInfo portalInfo = new PortalInfo(entity.position(), Vector3d.ZERO, entity.yRot, entity.xRot);
         portalInfo.putCB(destWorld, null);
         return this.isVanilla() ? defaultPortalInfo.apply(destWorld) : portalInfo;
     }
@@ -92,5 +92,17 @@ public interface ITeleporter
     default boolean isVanilla()
     {
         return this.getClass() == Teleporter.class;
+    }
+
+    /**
+     * Called when vanilla wants to play the portal sound after teleporting. Return true to play the vanilla sound.
+     * @param player the player
+     * @param sourceWorld the source world
+     * @param destWorld the target world
+     * @return true to play the vanilla sound
+     */
+    default boolean playTeleportSound(ServerPlayerEntity player, ServerWorld sourceWorld, ServerWorld destWorld)
+    {
+        return true;
     }
 }

@@ -418,6 +418,17 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
     public void sendBlockChange(@NotNull Location loc, @NotNull BlockData block);
 
     /**
+     * Send block damage. This fakes block break progress for a user at a
+     * certain location. This will not actually change the block's break
+     * progress in any way.
+     *
+     * @param loc the location of the damaged block
+     * @param progress the progress from 0.0 - 1.0 where 0 is no damage and
+     * 1.0 is the most damaged
+     */
+    public void sendBlockDamage(@NotNull Location loc, float progress);
+
+    /**
      * Send a chunk change. This fakes a chunk change packet for a user at a
      * certain location. The updated cuboid must be entirely within a single
      * chunk. This will not actually change the world in any way.
@@ -653,55 +664,6 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * @see #setLevel(int)
      */
     public void sendExperienceChange(float progress, int level);
-
-    /**
-     * Gets the players current exhaustion level.
-     * <p>
-     * Exhaustion controls how fast the food level drops. While you have a
-     * certain amount of exhaustion, your saturation will drop to zero, and
-     * then your food will drop to zero.
-     *
-     * @return Exhaustion level
-     */
-    public float getExhaustion();
-
-    /**
-     * Sets the players current exhaustion level
-     *
-     * @param value Exhaustion level
-     */
-    public void setExhaustion(float value);
-
-    /**
-     * Gets the players current saturation level.
-     * <p>
-     * Saturation is a buffer for food level. Your food level will not drop if
-     * you are saturated {@literal >} 0.
-     *
-     * @return Saturation level
-     */
-    public float getSaturation();
-
-    /**
-     * Sets the players current saturation level
-     *
-     * @param value Saturation level
-     */
-    public void setSaturation(float value);
-
-    /**
-     * Gets the players current food level
-     *
-     * @return Food level
-     */
-    public int getFoodLevel();
-
-    /**
-     * Sets the players current food level
-     *
-     * @param value New food level
-     */
-    public void setFoodLevel(int value);
 
     /**
      * Determines if the Player is allowed to fly via jump key double-tap like
@@ -1259,6 +1221,21 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
     public int getClientViewDistance();
 
     /**
+     * Gets the player's estimated ping in milliseconds.
+     *
+     * In Vanilla this value represents the average of the response time to the
+     * last four application layer ping packets sent. This value does not
+     * represent the network round trip time and as such may have less
+     * granularity and be impacted by other sources. For these reasons it
+     * <b>should not</b> be used for anti-cheat purposes. Its recommended use is
+     * only as a <b>qualitative</b> indicator of connection quality (Vanilla
+     * uses it for this purpose in the tab list).
+     *
+     * @return player ping
+     */
+    public int getPing();
+
+    /**
      * Gets the player's current locale.
      *
      * The value of the locale String is not defined properly.
@@ -1392,6 +1369,12 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
         public void sendMessage(@NotNull net.md_5.bungee.api.ChatMessageType position, @Nullable UUID sender, @NotNull net.md_5.bungee.api.chat.BaseComponent... components) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
+
+        // Paper start
+        public int getPing() {
+            throw new UnsupportedOperationException( "Not supported yet." );
+        }
+        // Paper end
     }
 
     @NotNull

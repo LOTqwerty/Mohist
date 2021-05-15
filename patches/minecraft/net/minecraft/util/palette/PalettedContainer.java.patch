@@ -1,6 +1,30 @@
 --- a/net/minecraft/util/palette/PalettedContainer.java
 +++ b/net/minecraft/util/palette/PalettedContainer.java
-@@ -66,8 +66,11 @@
+@@ -1,13 +_,15 @@
+ package net.minecraft.util.palette;
+ 
+-import it.unimi.dsi.fastutil.ints.Int2IntMap;
+-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+ import java.util.Arrays;
+ import java.util.Objects;
+ import java.util.concurrent.locks.ReentrantLock;
+ import java.util.function.Function;
+ import java.util.function.Predicate;
+ import java.util.stream.Collectors;
++
++import it.unimi.dsi.fastutil.ints.Int2IntMap;
++import it.unimi.dsi.fastutil.ints.Int2IntMap.Entry;
++import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+ import net.minecraft.crash.CrashReport;
+ import net.minecraft.crash.CrashReportCategory;
+ import net.minecraft.crash.ReportedException;
+@@ -61,13 +_,16 @@
+       this.func_186012_b(4);
+    }
+ 
+-   private static int func_186011_b(int p_186011_0_, int p_186011_1_, int p_186011_2_) {
++   public static int func_186011_b(int p_186011_0_, int p_186011_1_, int p_186011_2_) { // Mohist - Optimize Randomtick (2nd attempt)
+       return p_186011_1_ << 8 | p_186011_2_ << 4 | p_186011_0_;
     }
  
     private void func_186012_b(int p_186012_1_) {
@@ -14,7 +38,7 @@
           if (this.field_186024_e <= 4) {
              this.field_186024_e = 4;
              this.field_186022_c = new ArrayPalette<>(this.field_205523_d, this.field_186024_e, this, this.field_205524_e);
-@@ -76,6 +79,8 @@
+@@ -76,6 +_,8 @@
           } else {
              this.field_186022_c = this.field_205521_b;
              this.field_186024_e = MathHelper.func_151241_e(this.field_205523_d.func_186804_a());
@@ -23,7 +47,7 @@
           }
  
           this.field_186022_c.func_186041_a(this.field_205526_g);
-@@ -138,12 +143,16 @@
+@@ -138,12 +_,16 @@
        this.func_210459_b();
        int i = p_186010_1_.readByte();
        if (this.field_186024_e != i) {
@@ -41,3 +65,30 @@
     }
  
     public void func_186009_b(PacketBuffer p_186009_1_) {
+@@ -237,4 +_,26 @@
+    public interface ICountConsumer<T> {
+       void accept(T p_accept_1_, int p_accept_2_);
+    }
++
++   // Mohist start - Optimize Randomtick (2nd attempt)
++   public void count(PalettedContainer.ICountConsumerTriple<T> p_225497_1_) {
++      // Mohist start - Randomtick Improvements
++      Int2IntMap key2dat = new Int2IntOpenHashMap();
++      this.field_186021_b.getAll((dat, key) -> {
++         key2dat.put(key, dat);
++      });
++      for (Entry ent : key2dat.int2IntEntrySet()) {
++          int key = ent.getIntKey();
++          int dat = ent.getIntValue();
++          T state = this.field_186022_c.func_186039_a(dat);
++          p_225497_1_.accept(state, 1, key);
++      }
++      // Mohist end
++   }
++
++   @FunctionalInterface
++   public interface ICountConsumerTriple<T> {
++      void accept(T p_accept_1_, int p_accept_2_, int key);
++   }
++   // Mohist end
+ }

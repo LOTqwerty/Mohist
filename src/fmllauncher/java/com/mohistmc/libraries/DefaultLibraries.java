@@ -1,16 +1,19 @@
 package com.mohistmc.libraries;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import com.mohistmc.config.MohistConfigUtil;
 import com.mohistmc.network.download.UpdateUtils;
 import com.mohistmc.util.JarLoader;
 import com.mohistmc.util.JarTool;
 import com.mohistmc.util.MD5Util;
 import com.mohistmc.util.i18n.i18n;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+
+import net.minecraftforge.server.ServerMain;
 
 public class DefaultLibraries {
     private static int retry = 0;
@@ -30,7 +33,7 @@ public class DefaultLibraries {
 
                 try {
                     UpdateUtils.downloadFile(u, lib);
-                    if(lib.getName().endsWith(".jar")) new JarLoader().loadJar(lib);
+                    if(lib.getName().endsWith(".jar") && !lib.getName().contains("asm-tree-6.1.1.jar")) new JarLoader().loadJar(lib);
                     fail.remove(u);
                 } catch (Exception e) {
                     System.out.println(i18n.get("file.download.nook", u));

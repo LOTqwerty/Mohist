@@ -1,6 +1,6 @@
 --- a/net/minecraft/entity/item/EnderCrystalEntity.java
 +++ b/net/minecraft/entity/item/EnderCrystalEntity.java
-@@ -21,6 +21,8 @@
+@@ -21,6 +_,8 @@
  import net.minecraft.world.server.ServerWorld;
  import net.minecraftforge.api.distmarker.Dist;
  import net.minecraftforge.api.distmarker.OnlyIn;
@@ -9,7 +9,7 @@
  
  public class EnderCrystalEntity extends Entity {
     private static final DataParameter<Optional<BlockPos>> field_184521_b = EntityDataManager.func_187226_a(EnderCrystalEntity.class, DataSerializers.field_187201_k);
-@@ -52,7 +54,11 @@
+@@ -52,7 +_,11 @@
        if (this.field_70170_p instanceof ServerWorld) {
           BlockPos blockpos = this.func_233580_cy_();
           if (((ServerWorld)this.field_70170_p).func_241110_C_() != null && this.field_70170_p.func_180495_p(blockpos).func_196958_f()) {
@@ -22,7 +22,7 @@
           }
        }
  
-@@ -88,9 +94,22 @@
+@@ -88,9 +_,28 @@
           return false;
        } else {
           if (!this.field_70128_L && !this.field_70170_p.field_72995_K) {
@@ -41,8 +41,14 @@
 +                  this.field_70128_L = false;
 +                  return false;
 +               }
-+               this.field_70170_p.func_217398_a((Entity)null, this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_(), event.getRadius(), event.getFire(), Explosion.Mode.DESTROY);
-+               // CraftBukkit end
++
++               // Mohist start - Fix Pehkui Startup (#1324)
++               boolean oldFire = this.field_70170_p.pehkuiExplosionFire;
++               this.field_70170_p.pehkuiExplosionFire = event.getFire();
++               this.field_70170_p.func_217385_a((Entity)null, this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_(), event.getRadius(), Explosion.Mode.DESTROY);
++               this.field_70170_p.pehkuiExplosionFire = oldFire;
++               // Mohist end
++
              }
  
              this.func_184519_a(p_70097_1_);

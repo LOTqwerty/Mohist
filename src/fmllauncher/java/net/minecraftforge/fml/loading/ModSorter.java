@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2020.
+ * Copyright (c) 2016-2021.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,30 +19,41 @@
 
 package net.minecraftforge.fml.loading;
 
-import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.MutableGraph;
-import net.minecraftforge.forgespi.language.IModFileInfo;
-import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.fml.loading.EarlyLoadingException.ExceptionData;
-import net.minecraftforge.fml.loading.moddiscovery.ModFile;
-import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
-import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
-import net.minecraftforge.fml.loading.toposort.CyclePresentException;
-import net.minecraftforge.fml.loading.toposort.TopologicalSort;
-import net.minecraftforge.forgespi.locating.IModFile;
+import static net.minecraftforge.fml.loading.LogMarkers.LOADING;
+
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
+import com.mohistmc.config.MohistConfigUtil;
 
-import static net.minecraftforge.fml.loading.LogMarkers.LOADING;
+import net.minecraftforge.fml.loading.EarlyLoadingException.ExceptionData;
+import net.minecraftforge.fml.loading.moddiscovery.ModFile;
+import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
+import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
+import net.minecraftforge.fml.loading.toposort.CyclePresentException;
+import net.minecraftforge.fml.loading.toposort.TopologicalSort;
+import net.minecraftforge.forgespi.language.IModFileInfo;
+import net.minecraftforge.forgespi.language.IModInfo;
+import net.minecraftforge.forgespi.locating.IModFile;
 
 public class ModSorter
 {
@@ -247,25 +258,28 @@ public class ModSorter
                 .flatMap(Collection::stream)
                 .collect(Collectors.groupingBy(Function.identity(), Java9BackportUtils.flatMapping(e -> e.getDependencies().stream(), Collectors.toList())));
 
-        final Set<IModInfo.ModVersion> mandatoryModVersions = modVersionDependencies
+        final Set<IModInfo.ModVersion> modRequirements = modVersionDependencies
                 .values()
                 .stream()
                 .flatMap(Collection::stream)
-                .filter(mv -> mv.isMandatory() && mv.getSide().isCorrectSide())
+                .filter(mv -> mv.getSide().isCorrectSide())
                 .collect(Collectors.toSet());
 
-        LOGGER.debug(LOADING, "Found {} mandatory requirements", mandatoryModVersions.size());
-        final Set<IModInfo.ModVersion> missingVersions = mandatoryModVersions
+        final long mandatoryRequired = modRequirements.stream().filter(IModInfo.ModVersion::isMandatory).count();
+        LOGGER.debug(LOADING, "Found {} mod requirements ({} mandatory, {} optional)", modRequirements.size(), mandatoryRequired, modRequirements.size() - mandatoryRequired);
+        final Set<IModInfo.ModVersion> missingVersions = modRequirements
                 .stream()
-                .filter(mv->this.modVersionNotContained(mv, modVersions))
+                .filter(mv -> (mv.isMandatory() || modVersions.containsKey(mv.getModId())) && this.modVersionNotContained(mv, modVersions))
                 .collect(Collectors.toSet());
-        LOGGER.debug(LOADING, "Found {} mandatory mod requirements missing", missingVersions.size());
+        final long mandatoryMissing = missingVersions.stream().filter(IModInfo.ModVersion::isMandatory).count();
+        LOGGER.debug(LOADING, "Found {} mod requirements missing ({} mandatory, {} optional)", missingVersions.size(), mandatoryMissing, missingVersions.size() - mandatoryMissing);
 
         if (!missingVersions.isEmpty()) {
             return missingVersions
                     .stream()
-                    .map(mv -> new ExceptionData("fml.modloading.missingdependency", mv.getOwner(),
-                            mv.getModId(), mv.getOwner().getModId(), mv.getVersionRange(),
+                    .filter(mv -> MohistConfigUtil.bMohist("forge_ignore_optional_mods_version_check", "false") ? mv.isMandatory() : true) // Mohist - Introduce 'forge_ignore_optional_mods_version_check' option
+                    .map(mv -> new ExceptionData(mv.isMandatory() ? "fml.modloading.missingdependency" : "fml.modloading.missingdependency.optional",
+                            mv.getOwner(), mv.getModId(), mv.getOwner().getModId(), mv.getVersionRange(),
                             modVersions.getOrDefault(mv.getModId(), new DefaultArtifactVersion("null"))))
                     .collect(Collectors.toList());
         }

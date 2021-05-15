@@ -6,6 +6,8 @@ import com.mohistmc.libraries.DefaultLibraries;
 import com.mohistmc.network.download.UpdateUtils;
 import static com.mohistmc.util.EulaUtil.hasAcceptedEULA;
 import static com.mohistmc.util.EulaUtil.writeInfos;
+
+import com.mohistmc.util.CustomFlagsHandler;
 import com.mohistmc.util.InstallUtils;
 import static com.mohistmc.util.InstallUtils.startInstallation;
 import com.mohistmc.util.JarLoader;
@@ -20,12 +22,8 @@ public class MohistMCStart {
     }
 
     public static void main() throws Exception {
-        String path = JarTool.getJarPath();
-        if(path != null && (path.contains("+") || path.contains("!"))) {
-            System.out.println("[Mohist - ERROR] Unsupported characters have been detected in your server path. \nPlease remove + or ! in your server's folder name (in the folder which contains this character).\nPath : "+path);
-            System.exit(0);
-        }
         MohistConfigUtil.copyMohistConfig();
+        CustomFlagsHandler.handleCustomArgs();
 
         if (MohistConfigUtil.bMohist("show_logo", "true"))
             System.out.println("\n" + "\n" +
@@ -48,6 +46,14 @@ public class MohistMCStart {
             while (!"true".equals(new Scanner(System.in).next())) ;
             writeInfos();
         }
-        AutoDeletePlugins.jar();
+        if (!MohistConfigUtil.bMohist("disable_plugins_blacklist", "false")) {
+            AutoDeletePlugins.init();
+            AutoDeletePlugins.jar();
+        }
+
+        if (!MohistConfigUtil.bMohist("disable_mods_blacklist", "false")) {
+            AutoDeleteMods.init();
+            AutoDeleteMods.jar();
+        }
     }
 }

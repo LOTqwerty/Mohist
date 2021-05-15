@@ -100,6 +100,14 @@ public class CreatureSpawnEvent extends EntitySpawnEvent {
          */
         BREEDING,
         /**
+         * When a piglin is converted to a zombified piglib.
+         */
+        PIGLIN_ZOMBIFIED,
+        /**
+         * When a creature is spawned by the "/summon" command
+         */
+        COMMAND,
+        /**
          * When a slime splits
          */
         SLIME_SPLIT,

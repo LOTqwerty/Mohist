@@ -20,7 +20,7 @@ public class CraftCrashReport implements ICrashReportDetail<Object> {
     public Object call() throws Exception {
         StringWriter value = new StringWriter();
         try {
-            value.append("\n   Running: ").append(Bukkit.getName()).append(" version ").append(Bukkit.getVersion()).append(" (Implementing API version ").append(Bukkit.getBukkitVersion()).append(") ").append(String.valueOf(MinecraftServer.getServer().isServerInOnlineMode()));
+            value.append("\n   Running: ").append(Bukkit.getName()).append(" version ").append(Bukkit.getVersion()).append(" (Implementing API version ").append(Bukkit.getBukkitVersion()).append(") ").append(String.valueOf(MinecraftServer.getServer().usesAuthentication()));
             value.append("\n   Plugins: {");
             for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
                 PluginDescriptionFile description = plugin.getDescription();
@@ -44,9 +44,8 @@ public class CraftCrashReport implements ICrashReportDetail<Object> {
             }
             value.append("}");
         } catch (Throwable t) {
-            value.append("\n   Failed to handle CraftCrashReport:\n");
+            value.append("\n   Failed to handle CraftCrashReport: craftbukkit not runs\n");
             PrintWriter writer = new PrintWriter(value);
-            t.printStackTrace(writer);
             writer.flush();
         }
         return value.toString();

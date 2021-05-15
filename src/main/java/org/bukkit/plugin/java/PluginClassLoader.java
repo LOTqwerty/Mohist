@@ -1,7 +1,5 @@
 package org.bukkit.plugin.java;
 
-import com.mohistmc.bukkit.nms.ClassLoaderContext;
-import com.mohistmc.bukkit.nms.utils.RemapUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
-import net.md_5.specialsource.repo.RuntimeRepo;
-import net.minecraft.server.MinecraftServer;
+
 import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -28,10 +25,17 @@ import org.bukkit.plugin.SimplePluginManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.mohistmc.bukkit.nms.ClassLoaderContext;
+import com.mohistmc.bukkit.nms.utils.RemapUtils;
+
+import net.md_5.specialsource.repo.RuntimeRepo;
+import net.minecraft.server.MinecraftServer;
+
 /**
  * A ClassLoader for plugins, to allow shared classes across multiple plugins
  */
 public final class PluginClassLoader extends URLClassLoader {
+    public JavaPlugin getPlugin() { return plugin; } // Spigot
     private final JavaPluginLoader loader;
     private final Map<String, Class<?>> classes = new ConcurrentHashMap<String, Class<?>>();
     private final PluginDescriptionFile description;
@@ -103,7 +107,7 @@ public final class PluginClassLoader extends URLClassLoader {
         ClassLoaderContext.put(this);
         Class<?> result;
         try {
-            if (name.replace("/", ".").startsWith("net.minecraft.server.v1_16_R3")) {
+            if (name.replace("/", ".").startsWith("net.minecraft.server.v1_16_R3.")) {
                 String remappedClass = RemapUtils.jarMapping.byNMSName.get(name).getMcpName();
                 return Class.forName(remappedClass);
             }
@@ -185,7 +189,7 @@ public final class PluginClassLoader extends URLClassLoader {
         javaPlugin.init(loader, loader.server, description, dataFolder, file, this);
     }
 
-    private Class<?> remappedFindClass(String name) throws ClassNotFoundException {
+    private Class<?> remappedFindClass(String name) {
         Class<?> result = null;
 
         try {
@@ -228,8 +232,8 @@ public final class PluginClassLoader extends URLClassLoader {
                     }
                 }
             }
-        } catch (Throwable t) {
-            throw new ClassNotFoundException("Failed to remap class " + name, t);
+        } catch (Exception t) {
+            t.printStackTrace();
         }
 
         return result;

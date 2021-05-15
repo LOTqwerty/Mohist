@@ -1,6 +1,6 @@
 --- a/net/minecraft/entity/item/EnderPearlEntity.java
 +++ b/net/minecraft/entity/item/EnderPearlEntity.java
-@@ -19,6 +19,10 @@
+@@ -19,6 +_,10 @@
  import net.minecraft.world.server.ServerWorld;
  import net.minecraftforge.api.distmarker.Dist;
  import net.minecraftforge.api.distmarker.OnlyIn;
@@ -11,7 +11,7 @@
  
  public class EnderPearlEntity extends ProjectileItemEntity {
     public EnderPearlEntity(EntityType<? extends EnderPearlEntity> p_i50153_1_, World p_i50153_2_) {
-@@ -55,20 +59,37 @@
+@@ -55,20 +_,37 @@
           if (entity instanceof ServerPlayerEntity) {
              ServerPlayerEntity serverplayerentity = (ServerPlayerEntity)entity;
              if (serverplayerentity.field_71135_a.func_147298_b().func_150724_d() && serverplayerentity.field_70170_p == this.field_70170_p && !serverplayerentity.func_70608_bn()) {
@@ -21,23 +21,25 @@
 -                  endermiteentity.func_70012_b(entity.func_226277_ct_(), entity.func_226278_cu_(), entity.func_226281_cx_(), entity.field_70177_z, entity.field_70125_A);
 -                  this.field_70170_p.func_217376_c(endermiteentity);
 -               }
-+               net.minecraftforge.event.entity.living.EnderTeleportEvent event = new net.minecraftforge.event.entity.living.EnderTeleportEvent(serverplayerentity, this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_(), 5.0F);
-+               if (!net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event)) { // Don't indent to lower patch size
+-
+-               if (entity.func_184218_aH()) {
+-                  entity.func_184210_p();
+-               }
+-
+-               entity.func_70634_a(this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_());
+-               entity.field_70143_R = 0.0F;
+-               entity.func_70097_a(DamageSource.field_76379_h, 5.0F);
++               net.minecraftforge.event.entity.living.EntityTeleportEvent.EnderPearl event = net.minecraftforge.event.ForgeEventFactory.onEnderPearlLand(serverplayerentity, this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_(), this, 5.0F);
++               if (!event.isCanceled()) { // Don't indent to lower patch size
 +                  // CraftBukkit start - Fire PlayerTeleportEvent
 +                  org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer player = serverplayerentity.getBukkitEntity();
 +                  org.bukkit.Location location = getBukkitEntity().getLocation();
 +                  location.setPitch(player.getLocation().getPitch());
 +                  location.setYaw(player.getLocation().getYaw());
- 
--               if (entity.func_184218_aH()) {
--                  entity.func_184210_p();
--               }
++
 +                  PlayerTeleportEvent teleportEvent = new PlayerTeleportEvent(player, player.getLocation(), location, TeleportCause.ENDER_PEARL);
 +                  Bukkit.getPluginManager().callEvent(teleportEvent);
- 
--               entity.func_70634_a(this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_());
--               entity.field_70143_R = 0.0F;
--               entity.func_70097_a(DamageSource.field_76379_h, 5.0F);
++
 +                  if (!teleportEvent.isAsynchronous() && !serverplayerentity.field_71135_a.isDisconnected()) {
 +                     if (this.field_70146_Z.nextFloat() < 0.05F && this.field_70170_p.func_82736_K().func_223586_b(GameRules.field_223601_d)) {
 +                        EndermiteEntity endermiteentity = EntityType.field_200804_r.func_200721_a(this.field_70170_p);
@@ -53,7 +55,7 @@
 +                     serverplayerentity.field_71135_a.teleport(teleportEvent.getTo());
 +                     entity.field_70143_R = 0.0f;
 +                     CraftEventFactory.entityDamage = this;
-+                     entity.func_70097_a(DamageSource.field_76379_h, 5);
++                     entity.func_70097_a(DamageSource.field_76379_h, event.getAttackDamage());//Mohist - fix ignoring damage custom ender teleport damage
 +                     CraftEventFactory.entityDamage = null;
 +                  }
 +                  // CraftBukkit end
@@ -61,7 +63,7 @@
              }
           } else if (entity != null) {
              entity.func_70634_a(this.func_226277_ct_(), this.func_226278_cu_(), this.func_226281_cx_());
-@@ -91,12 +112,12 @@
+@@ -91,12 +_,12 @@
     }
  
     @Nullable

@@ -43,8 +43,10 @@ public class UpdateUtils {
                 System.out.println(i18n.get("update.latest", "1.0", jar_sha, build_number));
             else {
                 System.out.println(i18n.get("update.detect", build_number, jar_sha, time));
-                if (bMohist("check_update_auto_download", "false"))
-                    downloadFile("mhttps://ci.codemc.io/job/Mohist-Community/job/Mohist-1.16.5/lastSuccessfulBuild/artifact/projects/mohist/build/libs/mohist-" + build_number + "-server.jar", JarTool.getFile());
+                if (bMohist("check_update_auto_download", "false")) {
+                    downloadFile("https://ci.codemc.io/job/Mohist-Community/job/Mohist-1.16.5/lastSuccessfulBuild/artifact/projects/mohist/build/libs/mohist-" + build_number + "-server.jar", JarTool.getFile());
+                    restartServer(new ArrayList<>(Arrays.asList("java", "-jar", JarTool.getJarName())), true);
+                }
             }
         } catch (Throwable e) {
             System.out.println(i18n.get("check.update.noci"));
@@ -52,7 +54,7 @@ public class UpdateUtils {
     }
 
     public static void downloadFile(String URL, File f) throws Exception {
-        URLConnection conn = getConn(URL.replace("mhttps", "https"));
+        URLConnection conn = getConn(URL);
         System.out.println(i18n.get("download.file", f.getName(), getSize(conn.getContentLength())));
         ReadableByteChannel rbc = Channels.newChannel(conn.getInputStream());
         FileChannel fc = FileChannel.open(f.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -72,8 +74,7 @@ public class UpdateUtils {
         fc.close();
         rbc.close();
         System.out.println(i18n.get("download.file.ok", f.getName()));
-        if (URL.startsWith("mhttps"))
-            restartServer(new ArrayList<>(Arrays.asList("java", "-jar", JarTool.getJarName())), true);
+        percentage = 0;
     }
 
     public static void restartServer(ArrayList<String> cmd, boolean shutdown) throws Exception {

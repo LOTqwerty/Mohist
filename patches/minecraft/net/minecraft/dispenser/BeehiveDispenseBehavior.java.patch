@@ -1,6 +1,6 @@
 --- a/net/minecraft/dispenser/BeehiveDispenseBehavior.java
 +++ b/net/minecraft/dispenser/BeehiveDispenseBehavior.java
-@@ -17,13 +17,36 @@
+@@ -17,13 +_,36 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.world.World;
  import net.minecraft.world.server.ServerWorld;
@@ -12,7 +12,7 @@
     protected ItemStack func_82487_b(IBlockSource p_82487_1_, ItemStack p_82487_2_) {
        World world = p_82487_1_.func_197524_h();
 +      // CraftBukkit start
-+      org.bukkit.block.Block bukkitBlock = world.getCBWorld().getBlockAt(p_82487_1_.func_180699_d().func_177958_n(), p_82487_1_.func_180699_d().func_177956_o(), p_82487_1_.func_180699_d().func_177952_p());
++      org.bukkit.block.Block bukkitBlock = world.getWorld().getBlockAt(p_82487_1_.func_180699_d().func_177958_n(), p_82487_1_.func_180699_d().func_177956_o(), p_82487_1_.func_180699_d().func_177952_p());
 +      CraftItemStack craftItem = CraftItemStack.asCraftMirror(p_82487_2_);
 +      BlockDispenseEvent event = new BlockDispenseEvent(bukkitBlock, craftItem.clone(), new org.bukkit.util.Vector(0, 0, 0));
 +      if (!DispenserBlock.eventFired) {
@@ -38,7 +38,7 @@
           if (this.func_239795_a_() && p_82487_2_.func_96631_a(1, world.func_201674_k(), (ServerPlayerEntity)null)) {
              p_82487_2_.func_190920_e(0);
           }
-@@ -47,11 +70,16 @@
+@@ -47,11 +_,16 @@
        return false;
     }
  

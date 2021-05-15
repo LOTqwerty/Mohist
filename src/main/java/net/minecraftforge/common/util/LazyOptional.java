@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2020.
+ * Copyright (c) 2016-2021.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,7 +50,7 @@ import net.minecraftforge.common.capabilities.Capability;
  * must never be null.
  * <p>
  * The empty instance can be retrieved with {@link #empty()}.
- * 
+ *
  * @param <T> The type of the optional value.
  */
 @ParametersAreNonnullByDefault
@@ -73,7 +72,7 @@ public class LazyOptional<T>
     /**
      * Construct a new {@link LazyOptional} that wraps the given
      * {@link NonNullSupplier}.
-     * 
+     *
      * @param instanceSupplier The {@link NonNullSupplier} to wrap. Cannot return
      *                         null, but can be null itself. If null, this method
      *                         returns {@link #empty()}.
@@ -95,7 +94,7 @@ public class LazyOptional<T>
      * This method hides an unchecked cast to the inferred type. Only use this if
      * you are sure the type should match. For capabilities, generally
      * {@link Capability#orEmpty(Capability, LazyOptional)} should be used.
-     * 
+     *
      * @return This {@link LazyOptional}, cast to the inferred generic type
      */
     @SuppressWarnings("unchecked")
@@ -129,20 +128,23 @@ public class LazyOptional<T>
         }
         return resolved.getValue();
     }
-    
+
     private T getValueUnsafe()
     {
         T ret = getValue();
         if (ret == null)
         {
-            throw new IllegalStateException("LazyOptional is empty or otherwise returned null from getValue() unexpectedly");
+            // Mohist start - Prevent LazyOptional from crashing the server
+            LOGGER.error("LazyOptional is empty or otherwise returned null from getValue() unexpectedly");
+            LOGGER.error("Mohist prevented your server from crashing; But this is not supposed to happen!");
+            // Mohist end
         }
         return ret;
     }
 
     /**
      * Check if this {@link LazyOptional} is non-empty.
-     * 
+     *
      * @return {@code true} if this {@link LazyOptional} is non-empty, i.e. holds a
      *         non-null supplier
      */
@@ -218,7 +220,7 @@ public class LazyOptional<T>
      * <em>It is important to note that this method is <strong>not</strong> lazy, as
      * it must resolve the value of the supplier to validate it with the
      * predicate.</em>
-     * 
+     *
      * @param predicate A {@link NonNullPredicate} to apply to the result of the
      *                  contained supplier, if non-empty
      * @return An {@link Optional} containing the result of the contained

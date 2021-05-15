@@ -1,6 +1,6 @@
 --- a/net/minecraft/block/PressurePlateBlock.java
 +++ b/net/minecraft/block/PressurePlateBlock.java
-@@ -14,6 +14,8 @@
+@@ -14,6 +_,8 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.world.IWorld;
  import net.minecraft.world.World;
@@ -9,14 +9,14 @@
  
  public class PressurePlateBlock extends AbstractPressurePlateBlock {
     public static final BooleanProperty field_176580_a = BlockStateProperties.field_208194_u;
-@@ -67,6 +69,25 @@
+@@ -67,6 +_,25 @@
  
        if (!list.isEmpty()) {
           for(Entity entity : list) {
 +
 +            // CraftBukkit start - Call interact event when turning on a pressure plate
 +            if (this.func_176576_e(p_180669_1_.func_180495_p(p_180669_2_)) == 0) {
-+               org.bukkit.World bworld = p_180669_1_.getCBWorld();
++               org.bukkit.World bworld = p_180669_1_.getWorld();
 +               org.bukkit.plugin.PluginManager manager = p_180669_1_.getCBServer().getPluginManager();
 +               org.bukkit.event.Cancellable cancellable;
 +               if (entity instanceof PlayerEntity) {

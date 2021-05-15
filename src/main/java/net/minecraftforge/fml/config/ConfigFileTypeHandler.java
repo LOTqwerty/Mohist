@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2020.
+ * Copyright (c) 2016-2021.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -156,6 +156,7 @@ public class ConfigFileTypeHandler {
                     throw new ConfigLoadingException(modConfig, ex);
                 }
                 LOGGER.debug(CONFIG, "Config file {} changed, sending notifies", this.modConfig.getFileName());
+                this.modConfig.getSpec().afterReload();
                 this.modConfig.fireEvent(new ModConfig.Reloading(this.modConfig));
             }
         }
